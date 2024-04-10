@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>משחק טריוויה - הר הגלבוע</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        animation: fade-in 0.5s ease;
+    }
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+        animation: slide-down 0.5s ease;
+    }
+    @keyframes slide-down {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    #question {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #555;
+        animation: slide-left 0.5s ease;
+    }
+    @keyframes slide-left {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        animation: fade-in 0.5s ease;
+    }
+    .option {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        color: #333;
+    }
+    .option:hover {
+        background-color: #e9e9e9;
+        transform: scale(1.05);
+    }
+    #score {
+        text-align: center;
+        font-size: 18px;
+        margin-top: 10px;
+        animation: slide-up 0.5s ease;
+        color: #555;
+    }
+    @keyframes slide-up {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 5px;
+        z-index: 999;
+        animation: fade-in 0.5s ease, slide-up 0.5s ease 0.5s;
+    }
+    .correct {
+        background-color: #5cb85c;
+    }
+    .incorrect {
+        background-color: #d9534f;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>משחק טריוויה - הר הגלבוע</h1>
+    <div id="question"></div>
+    <div class="options" id="options"></div>
+    <div id="score"></div>
+</div>
+<script>
+    const triviaQuestions = [
+        {
+            question: "מהו הגובה הגבוה ביותר של הר הגלבוע?",
+            options: ["2,814 מטרים", "9,232 רגלים", "3,000 מטרים", "10,000 רגלים"],
+            correctAnswer: "2,814 מטרים"
+        },
+        {
+            question: "מהו שמו הערבי של הר הגלבוע?",
+            options: ["ג'בל טור", "ג'בל פאקיר", "ג'בל אל-ערב", "ג'בל אל-מקטיש"],
+            correctAnswer: "ג'בל טור"
+        },
+        {
+            question: "איזו מדינה ממוקמת לצפון מערב הר הגלבוע?",
+            options: ["לבנון", "סוריה", "ירדן", "ערב הסעודית"],
+            correctAnswer: "לבנון"
+        },
+        {
+            question: "מהו השמוע שבהר הגלבוע נמצא קברו של ישו?",
+            options: ["כרכור", "גרגת הרצל", "תל גרגר", "קרית שמונה"],
+            correctAnswer: "גרגת הרצל"
+        },
+        {
+            question: "מהו משמעות שמו 'הר הגלבוע' בערבית?",
+            options: ["ההר הנושב", "הר הרוחות", "הר המעופף", "הר הגבוה"],
+            correctAnswer: "הר הרוחות"
+        },
+        {
+            question: "מהו העברי של הר הגלבוע?",
+            options: ["גבעת הצופים", "הר תבור", "גבעת החרמון", "גבעת רמון"],
+            correctAnswer: "גבעת הצופים"
+        },
+        {
+            question: "על ידי מי הוכרז הקודש של הר הגלבוע לשלוש דתות המונותאיסטיות?",
+            options: ["סלאדין אל-איובי", "סלאדין אל-אכסאלני", "אדולף היטלר", "מוחמד אל-מקדיסי"],
+            correctAnswer: "אדולף היטלר"
+        },
+        {
+            question: "איזה קרבה התרחשה בקרבת הר הגלבוע במלחמת ששת הימים?",
+            options: ["קרב האשפוז", "קרב הספינות בבקעת בואות", "קרב הר גילה", "קרב ביריה"],
+            correctAnswer: "קרב הר גילה"
+        },
+        {
+            question: "מהו מרחקו המינימלי בין שלושת המקורות החשובים ביותר בהר הגלבוע?",
+            options: ["400 מטרים", "100 מטרים", "200 מטרים", "50 מטרים"],
+            correctAnswer: "200 מטרים"
+        },
+        {
+            question: "מהו הצמח הנדיר שנמצא בהר הגלבוע?",
+            options: ["קיסוס הלבנון", "שומרת הרגל", "גבעת הצופים", "מצוינות הרגל"],
+            correctAnswer: "קיסוס הלבנון"
+        },
+        {
+            question: "באיזה שנה הוקמה המערכת הכפרית הגדולה ביותר בהר הגלבוע?",
+            options: ["1958", "1932", "1945", "1967"],
+            correctAnswer: "1932"
+        },
+        {
+            question: "איזה מדינה ממוקמת מערב הר הגלבוע?",
+            options: ["ערב הסעודית", "סוריה", "לבנון", "ירדן"],
+            correctAnswer: "ירדן"
+        },
+        {
+            question: "מהו המעמד הרשמי של הר הגלבוע בעצם הקיומו של מדינת ישראל?",
+            options: ["אין מעמד רשמי מוסמך", "הר מוקדש", "הר ישראל", "הר לא ידוע"],
+            correctAnswer: "אין מעמד רשמי מוסמך"
+        },
+        {
+            question: "מהו מסלול הטיול הפופולרי ביותר בהר הגלבוע?",
+            options: ["שביל הפול", "שביל הגליל", "שביל העצים", "שביל הפלא"],
+            correctAnswer: "שביל הגליל"
+        },
+        {
+            question: "מהו מקור שמו של הר הגלבוע?",
+            options: ["מלבועה ומשמעו הר צריך יותר ממלבועה אחת לטייל בו", "הכינוי הוא שמו ברור", "אין מקור רומז", "מגילה גלבועה"],
+            correctAnswer: "מלבועה ומשמעו הר צריך יותר ממלבועה אחת לטייל בו"
+        },
+        {
+            question: "מהו המסלול המרכזי של שביל ישראל שעובר באורך הר הגלבוע?",
+            options: ["שביל העצים", "שביל המשולשים", "שביל הפול", "שביל הצופים"],
+            correctAnswer: "שביל הגליל"
+        },
+        {
+            question: "מהו הקירבה הכי קרובה של מטוסטריאן להר הגלבוע?",
+            options: ["עין חוד", "קריית אטה", "גני יוחנן", "עין חרוד"],
+            correctAnswer: "עין חרוד"
+        },
+        {
+            question: "מהו הנחל המפורסם שעובר בהר הגלבוע?",
+            options: ["נחל כזיב", "נחל הירדן", "נחל חרוד", "נחל איילון"],
+            correctAnswer: "נחל כזיב"
+        },
+        {
+            question: "מהו הצורך העיקרי של הצורות הנגרמות על ידי הגשמים בהר הגלבוע?",
+            options: ["משקעים למים התהפכותיים", "התכתובת עם האדמה", "נחורים למים התהפכותיים", "הפרדת מים"],
+            correctAnswer: "נחורים למים התהפכותיים"
+        },
+        {
+            question: "מהי העיר הגדולה ביותר שנמצאת בקרבת הר הגלבוע?",
+            options: ["עפולה", "נצרת", "טבריה", "חיפה"],
+            correctAnswer: "נצרת"
+        },
+        {
+            question: "איזו תקופה הייתה פורץ דרך בהתיישבות היהודית בהר הגלבוע?",
+            options: ["תקופת המשחקים הגלילאים", "תקופת בית שני", "תקופת המנדט הבריטי", "תקופת הכיבוש העות'מאני"],
+            correctAnswer: "תקופת המשחקים הגלילאים"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const scoreElement = document.getElementById('score');
+
+    function displayQuestion() {
+        const currentQuestion = triviaQuestions[currentQuestionIndex];
+        questionElement.textContent = currentQuestion.question;
+        optionsElement.innerHTML = '';
+        currentQuestion.options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.classList.add('option');
+            optionElement.textContent = option;
+            optionElement.addEventListener('click', () => selectAnswer(option));
+            optionsElement.appendChild(optionElement);
+        });
+    }
+
+    function selectAnswer(selectedOption) {
+        const currentQuestion = triviaQuestions[currentQuestionIndex];
+        const options = optionsElement.children;
+        for (let option of options) {
+            option.classList.remove('selected');
+            option.removeEventListener('click', selectAnswer);
+        }
+        const correctOption = Array.from(options).find(option => option.textContent === currentQuestion.correctAnswer);
+        if (selectedOption === currentQuestion.correctAnswer) {
+            score++;
+            showPopup('נכון! התשובה היא נכונה.', true);
+            correctOption.classList.add('correct');
+        } else {
+            showPopup('לא נכון! התשובה הנכונה היא ' + currentQuestion.correctAnswer, false);
+            correctOption.classList.add('correct');
+            const selectedOptionElement = Array.from(options).find(option => option.textContent === selectedOption);
+            selectedOptionElement.classList.add('incorrect');
+        }
+        currentQuestionIndex++;
+        if (currentQuestionIndex < triviaQuestions.length) {
+            setTimeout(displayQuestion, 1000);
+        } else {
+            optionsElement.innerHTML = '';
+            displayScore();
+        }
+    }
+
+    function showPopup(message, isCorrect) {
+        const popup = document.createElement('div');
+        popup.classList.add('popup');
+        popup.textContent = message;
+        document.body.appendChild(popup);
+        if (isCorrect) {
+            popup.style.backgroundColor = '#5cb85c'; // Green for correct
+        } else {
+            popup.style.backgroundColor = '#d9534f'; // Red for incorrect
+        }
+        setTimeout(() => {
+            popup.remove();
+        }, 1500);
+    }
+
+    function displayScore() {
+        scoreElement.textContent = 'ניקוד: ' + score + '/' + triviaQuestions.length;
+    }
+
+    displayQuestion();
+</script>
+</body>
+</html>
